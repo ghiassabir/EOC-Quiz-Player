@@ -108,15 +108,9 @@
         .passage-pane, .question-pane, .spr-instructions-pane {
             padding: 1.5rem; overflow-y: auto; box-sizing: border-box; background-color: white;
         }
-        .passage-pane { flex-basis: 50%; border-right: 1px solid var(--bluebook-pane-divider); display: flex; /* Make it a flex container */
-        flex-direction: column; /* Stack children vertically */
-        align-items: center; /* Center children horizontally (including image) */ }
-        .spr-instructions-pane { flex-basis: 50%; border-right: 1px solid var(--bluebook-pane-divider); display: flex; /* Ensure this is also a flex column if it can host images or structured content */
-        flex-direction: column;
-        align-items: center; }
-        .question-pane { flex-basis: 50%; background-color: #f9fafb; display: flex; /* Make it a flex container */
-        flex-direction: column; /* Stack children vertically */
-        align-items: center; /* Center children horizontally (including image) */ }
+        .passage-pane { flex-basis: 50%; border-right: 1px solid var(--bluebook-pane-divider); }
+        .spr-instructions-pane { flex-basis: 50%; border-right: 1px solid var(--bluebook-pane-divider); }
+        .question-pane { flex-basis: 50%; background-color: #f9fafb; }
         .passage-content p, .question-text p, .spr-instructions-content p, .spr-instructions-content li { font-size: 1rem; line-height: 1.6; }
         .passage-content p + p, .spr-instructions-content p + p { margin-top: 1em; }
          .spr-instructions-content h3 { font-size: 1.125rem; font-weight: bold; margin-bottom: 0.75rem;}
@@ -429,50 +423,6 @@
         .review-legend { display: flex; gap: 1rem; font-size: 0.75rem; color: var(--bluebook-light-text); }
         .review-legend .legend-item { display: flex; align-items: center; gap: 0.25rem; }
         .review-q-grid { display: flex; flex-wrap: wrap; gap: 0.75rem; }
-
-    /* Image styles */
-    #passage-image {
-        /* Style for images in the left (passage) pane */
-        max-width: 100%; /* English images will take up to 100% of the passage pane width */
-        height: auto; 
-        display: block; /* Ensure it acts as a block element for margin:auto to work */
-        margin: 0 auto 1rem auto; /* Center it horizontally and add some space below */
-        border: 1px solid var(--bluebook-border-color); 
-        border-radius: 0.25rem;
-    }
-
-    #question-image {
-        /* Style for images in the right (question) pane - typically Math */
-        max-width: 70%; /* Math images constrained to 80% */
-        height: auto; 
-        display: block; /* Ensure it acts as a block element for margin:auto to work */
-        margin: 0 auto 1rem auto; /* Center it horizontally and add some space below */
-        border: 1px solid var(--bluebook-border-color); 
-        border-radius: 0.25rem;
-    }
-    
-    /* Ensure your .hidden class is correctly defined to apply display: none !important; */
-    .hidden {
-        display: none !important;
-    }
-
-
-        /* Text content within panes might also need minor adjustment for alignment if affected */
-    .passage-content, .question-text, .spr-instructions-content {
-        align-self: stretch; /* Allows text content to take full width */
-        text-align: left; /* Ensure text alignment is left within its stretched container */
-    }
-
-    /* Specific adjustment for passage content when image is present, if needed */
-    .passage-pane:has(#passage-image:not(.hidden)) .passage-content {
-        /* Add specific styles here if the text needs different spacing when an image is present */
-        margin-top: 1rem; /* Example: add some space between image and text */
-    }
-
-        
-    
-    
-    
     </style>
     <!-- MathJax Configuration -->
     <script>
@@ -581,9 +531,7 @@
             </header>
             <div class="test-preview-banner">THIS IS A TEST PREVIEW</div>
             <main class="main-content-area" id="main-content-area-dynamic">
-                <div class="passage-pane custom-scrollbar" id="passage-pane"> 
-                <img id="passage-image" src="" alt="Passage-related image" class="hidden" style="max-width: 80%; height: auto; margin: 0 auto 1rem auto; border: 1px solid var(--bluebook-border-color); border-radius: 0.25rem;">
-                    <div class="passage-content" id="passage-content"></div> </div>
+                <div class="passage-pane custom-scrollbar" id="passage-pane"> <div class="passage-content" id="passage-content"></div> </div>
                 <div class="spr-instructions-pane custom-scrollbar" id="spr-instructions-pane" style="display: none;"> <div class="spr-instructions-content" id="spr-instructions-content"></div> </div>
                 <div class="pane-divider-draggable" id="pane-divider-draggable"></div>
                 <div class="question-pane custom-scrollbar" id="question-pane">
@@ -594,10 +542,6 @@
                         </div>
                         <button class="cross-out-tool-btn" id="cross-out-tool-btn-main"> <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M8.48 10.99C8.32 10.66 8 10.38 8 10C8 9.45 8.45 9 9 9C9.55 9 10 9.45 10 10C10 10.38 9.68 10.66 9.52 10.99H14.48C14.32 10.66 14 10.38 14 10C14 9.45 14.45 9 15 9C15.55 9 16 9.45 16 10C16 10.38 15.68 10.66 15.52 10.99H17C17.55 10.99 18 11.44 18 11.99C18 12.54 17.55 12.99 17 12.99H15.52C15.68 13.32 16 13.61 16 14C16 14.55 15.55 15 15 15C14.45 15 14 14.55 14 14C14 13.61 14.32 13.32 14.48 12.99H9.52C9.68 13.32 10 13.61 10 14C10 14.55 9.55 15 9 15C8.45 15 8 14.55 8 14C8 13.61 8.32 13.32 8.48 12.99H7C6.45 12.99 6 12.54 6 11.99C6 11.44 6.45 10.99 7 10.99H8.48Z" fill="currentColor"></path><path d="M3 5L21 19" stroke="currentColor" stroke-width="2" stroke-linecap="round"></path></svg> <span>ABC</span> </button>
                     </div>
-                   
-                <!-- ENSURE THIS IMG TAG IS HERE FOR MATH IMAGES -->
-                <img id="question-image" src="" alt="Question-related image" class="hidden" style="max-width: 100%; height: auto; margin: 0 auto 1rem auto; border: 1px solid var(--bluebook-border-color); border-radius: 0.25rem;">
-                    
                     <div class="question-text" id="question-text-main"></div>
                     <div id="answer-area">
                         <div class="answer-options" id="answer-options-main"></div>
