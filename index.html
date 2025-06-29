@@ -3,16 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SAT Digital Diagnostic Test</title>
+    <title>Bluebook Quiz Launcher</title>
     <style>
         :root {
             --bluebook-dark-blue: #0d2f5a;
             --bluebook-button-blue: #2563eb;
             --bluebook-button-blue-hover: #1d4ed8;
-            --bluebook-button-green: #16a34a;
-            --bluebook-button-green-hover: #15803d;
-            --bluebook-button-grey: #6b7280;
-            --bluebook-button-grey-hover: #4b5563;
             --bluebook-border-color: #cbd5e0;
             --bluebook-text-color: #1e293b;
             --bluebook-light-text: #64748b;
@@ -21,6 +17,7 @@
             --bluebook-yellow-button: #facc15;
             --bluebook-yellow-button-hover: #eab308;
             --bluebook-yellow-button-text: #422006;
+            --bluebook-red-error: #dc2626;
         }
 
         body, html {
@@ -73,71 +70,44 @@
             min-height: 1.5rem; /* Reserve space */
         }
 
-        .button-container {
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
+        #status-message.error {
+            color: var(--bluebook-red-error);
+            font-weight: 600;
         }
 
-        .module-btn, .results-btn {
+        .start-quiz-btn {
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 0.75rem;
             width: 100%;
             padding: 1rem;
-            font-size: 1rem;
+            font-size: 1.125rem;
             font-weight: 600;
             border-radius: 0.5rem;
-            border: 1px solid var(--bluebook-border-color);
             cursor: pointer;
             transition: all 0.2s ease-in-out;
             text-align: center;
-        }
-
-        .module-btn:not(:disabled):hover, .results-btn:not(:disabled):hover {
-            transform: translateY(-2px);
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-        }
-
-        /* Active/Next State */
-        .module-btn.active {
             background-color: var(--bluebook-button-blue);
             color: white;
-            border-color: var(--bluebook-button-blue);
+            border: 1px solid var(--bluebook-button-blue);
         }
-        .module-btn.active:hover {
+
+        .start-quiz-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
             background-color: var(--bluebook-button-blue-hover);
         }
 
-        /* Completed State */
-        .module-btn.completed {
-            background-color: #e8f5e9; /* Light green */
-            color: #388e3c; /* Dark green */
-            border-color: #a5d6a7;
-            cursor: not-allowed;
-            opacity: 0.8;
-        }
-
-        /* Locked State */
-        .module-btn:disabled, .results-btn:disabled {
+        .start-quiz-btn:disabled {
             background-color: #e9ecef; /* Light grey */
             color: var(--bluebook-light-text);
+            border-color: var(--bluebook-border-color);
             cursor: not-allowed;
             opacity: 0.7;
         }
-        
-        .results-btn {
-            margin-top: 1rem;
-            background-color: var(--bluebook-button-green);
-            color: white;
-            border-color: var(--bluebook-button-green);
-        }
-        .results-btn:hover:not(:disabled) {
-             background-color: var(--bluebook-button-green-hover);
-        }
 
-        /* Email Overlay */
+        /* Email Overlay Styles (kept from original) */
         #email-overlay {
             position: fixed;
             top: 0;
@@ -183,43 +153,28 @@
 </head>
 <body>
 
+    <!-- Email capture overlay remains the same -->
     <div id="email-overlay">
         <div class="hub-card">
             <h1>Welcome</h1>
-            <p>Please enter your email to access the Diagnostic Test.</p>
+            <p>Please enter your email to access the quiz.</p>
             <input type="email" id="email-input" placeholder="your.email@example.com">
             <button id="submit-email-button">Save & Continue</button>
         </div>
     </div>
 
+    <!-- The main content is now a single quiz launcher -->
     <div class="hub-container" id="main-content" style="display: none;">
         <div class="hub-card">
-            <h1>Digital SAT Diagnostic Test</h1>
-            <p>Complete all four modules to see your results. Please proceed in order.</p>
+            <h1>Bluebook Quiz Launcher</h1>
+            <p>This will start the quiz specified in the URL. Make sure the URL is correct.</p>
             
             <div id="status-message">Loading...</div>
 
             <div class="button-container">
-                <button class="module-btn" id="start-dt-m1" data-quiz-name="DT-T0-RW-M1" data-index="0">
-                    <span class="icon">➡️</span>
-                    <span>Reading & Writing Module 1</span>
-                </button>
-                <button class="module-btn" id="start-dt-m2" data-quiz-name="DT-T0-RW-M2" data-index="1">
-                    <span class="icon">➡️</span>
-                    <span>Reading & Writing Module 2</span>
-                </button>
-                <button class="module-btn" id="start-dt-m3" data-quiz-name="DT-T0-MT-M1" data-index="2">
-                    <span class="icon">➡️</span>
-                    <span>Math Module 1</span>
-                </button>
-                <button class="module-btn" id="start-dt-m4" data-quiz-name="DT-T0-MT-M2" data-index="3">
-                    <span class="icon">➡️</span>
-                    <span>Math Module 2</span>
-                </button>
-
-                <button class="results-btn" id="view-dt-results">
-                    <span class="icon">📊</span>
-                    <span>View Full Test Results</span>
+                <button class="start-quiz-btn" id="start-quiz-btn" disabled>
+                    <span class="icon">▶️</span>
+                    <span>Start Quiz</span>
                 </button>
             </div>
         </div>
@@ -228,11 +183,8 @@
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             // --- CONFIGURATION ---
-            const DIAGNOSTIC_TEST_STATE_KEY = 'diagnosticTestState_DT-T0';
-            const STUDENT_EMAIL_KEY = 'bluebookStudentEmail'; // Should match the key in quiz.html
-            const MODULE_ORDER = ["DT-T0-RW-M1", "DT-T0-RW-M2", "DT-T0-MT-M1", "DT-T0-MT-M2"];
-            const QUIZ_PLAYER_PATH = 'quiz.html'; // Adjust if your file structure is different
-            const DASHBOARD_PATH = 'https://ghiassabir.github.io/Student-dashboard-with-real-data-v1/index.html'; // The page for viewing results
+            const STUDENT_EMAIL_KEY = 'bluebookStudentEmail'; // Key to store email in localStorage
+            const QUIZ_PLAYER_PATH = './quiz.html'; // Path to the quiz player page
 
             // --- DOM ELEMENTS ---
             const emailOverlay = document.getElementById('email-overlay');
@@ -240,147 +192,71 @@
             const submitEmailButton = document.getElementById('submit-email-button');
             const mainContent = document.getElementById('main-content');
             const statusMessage = document.getElementById('status-message');
-            const moduleButtons = document.querySelectorAll('.module-btn');
-            const viewResultsButton = document.getElementById('view-dt-results');
-            const questionImage = document.getElementById('question-image');
+            const startQuizButton = document.getElementById('start-quiz-btn');
             
-            // --- STATE ---
-            let studentEmail = null;
-            let completionState = {};
+            let quizNameToLoad = null;
 
             // --- FUNCTIONS ---
-            function loadCompletionState() {
-                try {
-                    const savedStateJSON = localStorage.getItem(DIAGNOSTIC_TEST_STATE_KEY);
-                    if (savedStateJSON) {
-                        completionState = JSON.parse(savedStateJSON);
-                        // Validate that all modules exist in the state, add if missing
-                        MODULE_ORDER.forEach(moduleName => {
-                            if (typeof completionState[moduleName] === 'undefined') {
-                                completionState[moduleName] = false;
-                            }
-                        });
-                    } else {
-                        // Initialize state if nothing is saved
-                        MODULE_ORDER.forEach(name => { completionState[name] = false; });
-                    }
-                } catch (e) {
-                    console.error("Error loading completion state, re-initializing.", e);
-                    MODULE_ORDER.forEach(name => { completionState[name] = false; });
-                }
-                saveCompletionState(); // Save initialized/validated state back
-            }
-
-            function saveCompletionState() {
-                localStorage.setItem(DIAGNOSTIC_TEST_STATE_KEY, JSON.stringify(completionState));
-            }
-
-            function updateButtonStates() {
-                let nextModuleIndex = MODULE_ORDER.findIndex(moduleName => !completionState[moduleName]);
-                if (nextModuleIndex === -1) { // All modules are complete
-                    statusMessage.textContent = "Congratulations! You have completed the diagnostic test.";
-                } else {
-                    statusMessage.textContent = `Next up: ${document.querySelector(`[data-index="${nextModuleIndex}"] span:last-child`).textContent}`;
-                }
-
-                moduleButtons.forEach(button => {
-                    const index = parseInt(button.dataset.index, 10);
-                    const iconSpan = button.querySelector('.icon');
-                    
-                    button.classList.remove('active', 'completed');
-                    button.disabled = true;
-
-                    if (index < nextModuleIndex) { // Completed module
-                        button.classList.add('completed');
-                        iconSpan.textContent = '✅';
-                    } else if (index === nextModuleIndex) { // Next module to do
-                        button.classList.add('active');
-                        button.disabled = false;
-                        iconSpan.textContent = '▶️';
-                    } else { // Locked future module
-                        iconSpan.textContent = '🔒';
-                    }
-                });
-
-                viewResultsButton.disabled = (nextModuleIndex !== -1);
-            }
-
             function launchQuizModule(quizName) {
-                const originPageId = 'index'; // This file's name without extension
-                //const url = `${QUIZ_PLAYER_PATH}?test_id=DT-T0&start_module=${quizName}&originPageId=${originPageId}&source=diagnostic`;
-                // Note: We use test_id=DT-T0 to tell quiz.html it's a test flow,
-                // and start_module can optionally tell it which module to jump to if needed,
-                // although the main logic relies on module completion state.
-                // A simpler URL could be just quiz_name=quizName, but using test_id makes it clear it's part of a larger test.
-                
-                // --- CHANGED: Use 'quiz_name' parameter instead of 'test_id' ---
-    // This tells quiz.html to run in 'single_quiz' mode for just this module.
-    // The logic for what happens *after* is handled by this index.html page.
-    const url = `${QUIZ_PLAYER_PATH}?quiz_name=${quizName}&originPageId=${originPageId}&source=diagnostic`;
-
-                
+                if (!quizName) {
+                    console.error("Launch failed: No quiz name provided.");
+                    return;
+                }
+                const url = `${QUIZ_PLAYER_PATH}?quiz_name=${encodeURIComponent(quizName)}`;
                 console.log(`Launching quiz player with URL: ${url}`);
                 window.location.href = url;
             }
 
-            // --- INITIALIZATION LOGIC ---
+            // This function runs after the user has provided their email
             function initializeHub() {
-                loadCompletionState();
-                updateButtonStates();
+                // Get the quiz name from the URL parameters
+                const urlParams = new URLSearchParams(window.location.search);
+                quizNameToLoad = urlParams.get('quiz_name');
+
+                if (quizNameToLoad) {
+                    // If a quiz name is found, update the UI
+                    statusMessage.textContent = `Ready to start quiz: ${quizNameToLoad}`;
+                    statusMessage.classList.remove('error');
+                    startQuizButton.disabled = false;
+                } else {
+                    // If no quiz name is found, show an error
+                    statusMessage.textContent = 'Error: No quiz_name specified in the URL.';
+                    statusMessage.classList.add('error');
+                    startQuizButton.disabled = true;
+                }
+
+                // Show the main content card
                 mainContent.style.display = 'flex';
                 emailOverlay.classList.add('hidden');
             }
 
             // --- EVENT LISTENERS ---
+            // Handles email submission
             submitEmailButton.addEventListener('click', () => {
                 const email = emailInput.value.trim();
                 if (email && email.includes('@')) {
-                    studentEmail = email;
-                    localStorage.setItem(STUDENT_EMAIL_KEY, studentEmail);
+                    localStorage.setItem(STUDENT_EMAIL_KEY, email);
                     initializeHub();
                 } else {
                     alert("Please enter a valid email address.");
                 }
             });
 
-            moduleButtons.forEach(button => {
-                button.addEventListener('click', (e) => {
-                    const buttonEl = e.currentTarget;
-                    if (buttonEl.disabled) {
-                        const index = parseInt(buttonEl.dataset.index, 10);
-                        const nextModuleIndex = MODULE_ORDER.findIndex(moduleName => !completionState[moduleName]);
-                        
-                        if (index < nextModuleIndex) {
-                             alert("You have already completed this module. Please proceed to the next one.");
-                        } else {
-                             alert("Please complete the previous modules in sequence.");
-                        }
-                        return;
-                    }
-                    const quizName = buttonEl.dataset.quizName;
-                    launchQuizModule(quizName);
-                });
-            });
-
-            viewResultsButton.addEventListener('click', () => {
-                if (viewResultsButton.disabled) {
-                    alert("Please complete all four modules before viewing the full results.");
-                } else {
-                    // Navigate to dashboard
-                    console.log("Navigating to dashboard.");
-                    console.log("Preparing to navigate to dashboard...");
-                    console.log("Destination URL is:", DASHBOARD_PATH);
-                    window.location.href = DASHBOARD_PATH;
+            // Handles the "Start Quiz" button click
+            startQuizButton.addEventListener('click', () => {
+                if (quizNameToLoad) {
+                    launchQuizModule(quizNameToLoad);
                 }
             });
 
-
-            // --- Main Entry Point ---
+            // --- MAIN ENTRY POINT ---
+            // Check if an email is already saved from a previous session
             const savedEmail = localStorage.getItem(STUDENT_EMAIL_KEY);
             if (savedEmail && savedEmail.includes('@')) {
-                studentEmail = savedEmail;
+                // If email exists, skip the overlay and initialize the launcher
                 initializeHub();
             } else {
+                // If no email, show the overlay to capture it
                 emailOverlay.classList.remove('hidden');
             }
         });
